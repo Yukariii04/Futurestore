@@ -1,5 +1,6 @@
 const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/400';
 
+// Helper: Fetch JSON wrapper
 const fetchJson = async (url) => {
   const response = await fetch(url);
   if (!response.ok) {
@@ -8,6 +9,7 @@ const fetchJson = async (url) => {
   return response.json();
 };
 
+// Helper: Extract and filter images
 const extractImages = (product) => {
   const candidates = [
     ...(Array.isArray(product.images) ? product.images : []),
@@ -17,6 +19,7 @@ const extractImages = (product) => {
   return candidates.length > 0 ? candidates : [PLACEHOLDER_IMAGE];
 };
 
+// Helper: Standardize rating value
 const deriveRating = (product) => {
   if (typeof product.rating === 'number') {
     return product.rating;
@@ -27,6 +30,7 @@ const deriveRating = (product) => {
   return null;
 };
 
+// Helper: Normalize product structure
 const normalizeProduct = (product, category) => ({
   id: `${category.slug}-${product.id}`,
   sourceId: Number(product.id) || product.id,
@@ -43,11 +47,13 @@ const normalizeProduct = (product, category) => ({
   source: category.name,
 });
 
+// API: Fetch specific category from DummyJSON
 const fetchDummyJsonCategory = async (category) => {
   const data = await fetchJson(`https://dummyjson.com/products/category/${encodeURIComponent(category)}`);
   return data.products || [];
 };
 
+// API: Fetch clothes from FakeStoreAPI
 const fetchClothesProducts = async (category) => {
   const endpoints = ["men%27s%20clothing", "women%27s%20clothing"];
   const collections = await Promise.all(
@@ -57,6 +63,7 @@ const fetchClothesProducts = async (category) => {
   return combined.map((product) => normalizeProduct(product, category));
 };
 
+// API: Fetch electronics from DummyJSON
 const fetchElectronicsProducts = async (category) => {
   const [smartphones, laptops] = await Promise.all([
     fetchDummyJsonCategory('smartphones'),
@@ -65,11 +72,13 @@ const fetchElectronicsProducts = async (category) => {
   return [...smartphones, ...laptops].map((product) => normalizeProduct(product, category));
 };
 
+// API: Fetch furniture from DummyJSON
 const fetchFurnitureProducts = async (category) => {
   const furniture = await fetchDummyJsonCategory('furniture');
   return furniture.map((product) => normalizeProduct(product, category));
 };
 
+// API: Fetch miscellaneous items
 const fetchMiscProducts = async (category) => {
   const [home, lighting] = await Promise.all([
     fetchDummyJsonCategory('home-decoration'),
@@ -78,6 +87,7 @@ const fetchMiscProducts = async (category) => {
   return [...home, ...lighting].map((product) => normalizeProduct(product, category));
 };
 
+// Config: Category definitions and loaders
 const CATEGORY_CONFIG = {
   clothes: {
     slug: 'clothes',
@@ -105,8 +115,10 @@ const CATEGORY_CONFIG = {
   },
 };
 
+// Cache: Store loaded category products
 const categoryCache = new Map();
 
+// Core: Load products for a category with caching
 const loadCategoryProducts = async (slug) => {
   if (!CATEGORY_CONFIG[slug]) {
     return [];
@@ -126,6 +138,7 @@ const loadCategoryProducts = async (slug) => {
   }
 };
 
+// Export: Fetch all products across categories
 export const fetchProducts = async () => {
   const productGroups = await Promise.all(
     Object.keys(CATEGORY_CONFIG).map((slug) => loadCategoryProducts(slug))
@@ -133,6 +146,7 @@ export const fetchProducts = async () => {
   return productGroups.flat();
 };
 
+// Export: Get list of available categories
 export const fetchCategories = async () =>
   Object.values(CATEGORY_CONFIG).map(({ slug, name, description }) => ({
     id: slug,
@@ -141,8 +155,10 @@ export const fetchCategories = async () =>
     description,
   }));
 
+// Export: Fetch products for a specific category
 export const fetchProductsByCategory = async (slug) => loadCategoryProducts(slug);
 
+// Export: Find a single product by ID
 export const fetchProductById = async (id) => {
   if (!id) return null;
   const [slug] = id.split('-');

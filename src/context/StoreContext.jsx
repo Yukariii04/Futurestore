@@ -9,6 +9,7 @@ const initialState = {
   toast: null,
 };
 
+// Reducer: Handle state actions
 const storeReducer = (state, action) => {
   switch (action.type) {
     case 'LOAD_STATE':
@@ -100,10 +101,12 @@ const storeReducer = (state, action) => {
   }
 };
 
+// Component: Context Provider
 export const StoreProvider = ({ children }) => {
   const [state, dispatch] = useReducer(storeReducer, initialState);
 
 
+  // Effect: Load initial state from local storage
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
     const savedWishlist = localStorage.getItem('wishlist');
@@ -120,19 +123,23 @@ export const StoreProvider = ({ children }) => {
   }, []);
 
 
+  // Effect: Persist cart to local storage
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(state.cart));
   }, [state.cart]);
 
+  // Effect: Persist wishlist to local storage
   useEffect(() => {
     localStorage.setItem('wishlist', JSON.stringify(state.wishlist));
   }, [state.wishlist]);
 
+  // Effect: Persist orders to local storage
   useEffect(() => {
     localStorage.setItem('orders', JSON.stringify(state.orders));
   }, [state.orders]);
 
 
+  // Effect: Clear toast notification after timeout
   useEffect(() => {
     if (state.toast) {
       const timer = setTimeout(() => {
@@ -157,6 +164,7 @@ export const StoreProvider = ({ children }) => {
   );
 };
 
+// Hook: Custom hook to use store
 export const useStore = () => {
   const context = useContext(StoreContext);
   if (!context) {

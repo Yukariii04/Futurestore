@@ -4,12 +4,14 @@ import { fetchCategories } from '../lib/api';
 import { useStore } from '../context/StoreContext';
 import { gsap } from 'gsap';
 
+// Component: Navbar with navigation and cart
 const Navbar = () => {
   const [categories, setCategories] = useState([]);
   const { state } = useStore();
   const navigate = useNavigate();
   const navRef = useRef(null);
 
+  // Effect: Animate navbar on mount
   useEffect(() => {
     const timer = setTimeout(() => {
       if (navRef.current) {
@@ -34,6 +36,7 @@ const Navbar = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Effect: Fetch categories for menu
   useEffect(() => {
     const loadCategories = async () => {
       const data = await fetchCategories();
@@ -46,8 +49,8 @@ const Navbar = () => {
   const wishlistCount = state.wishlist.length;
 
   return (
-    <nav 
-      ref={navRef} 
+    <nav
+      ref={navRef}
       className="sticky top-0 z-40 bg-black border-b border-neutral-800 backdrop-blur-sm"
       style={{ opacity: 1, transform: 'translateY(0)' }}
     >
@@ -56,7 +59,7 @@ const Navbar = () => {
           <Link to="/" className="font-mono text-sm uppercase tracking-wider text-white hover:text-neutral-300 transition-colors">
             FUTURE.STORE
           </Link>
-          
+
           <div className="flex items-center gap-6">
             <Link to="/" className="nav-link text-sm text-neutral-400 hover:text-white transition-colors">
               Home
@@ -64,7 +67,7 @@ const Navbar = () => {
             <Link to="/products" className="nav-link text-sm text-neutral-400 hover:text-white transition-colors">
               Products
             </Link>
-            
+
             <div className="hidden md:flex items-center gap-2">
               {categories.slice(0, 4).map((category) => (
                 <Link
@@ -76,7 +79,7 @@ const Navbar = () => {
                 </Link>
               ))}
             </div>
-            
+
             <Link to="/wishlist" className="nav-link text-neutral-400 hover:text-white transition-colors relative">
               <svg
                 width="24"
@@ -93,7 +96,7 @@ const Navbar = () => {
                 </span>
               )}
             </Link>
-            
+
             <button
               onClick={() => navigate('/cart')}
               className="nav-link text-neutral-400 hover:text-white transition-colors relative"
@@ -119,11 +122,11 @@ const Navbar = () => {
                 </span>
               )}
             </button>
-            
+
             <Link to="/orders" className="nav-link text-sm text-neutral-400 hover:text-white transition-colors">
               Orders
             </Link>
-            
+
             <Link to="/contact" className="nav-link text-sm text-neutral-400 hover:text-white transition-colors">
               Contact
             </Link>
